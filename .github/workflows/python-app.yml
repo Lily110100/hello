@@ -4,18 +4,20 @@ on: [push]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.9", "3.11", "3.13"]
 
     steps:
       - uses: actions/checkout@v6
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
-      - name: Install the code linting and formatting tool Ruff
-        run: pipx install ruff
-      - name: Lint code with Ruff
-        run: ruff check --output-format=github --target-version=py39
-      - name: Check code formatting with Ruff
-        run: ruff format --diff --target-version=py39
-        continue-on-error: true
+          python-version: ${{ matrix.python }}
+      - name: Install tox and any other packages
+        run: pip install tox
+      - name: Run tox
+        # Run tox using the version of Python in `PATH`
+        run: tox -e py
